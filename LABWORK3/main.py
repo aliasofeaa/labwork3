@@ -1,86 +1,69 @@
-class HotelReservationSystem:
-    def __init__(self):
-        self.room_prices = {'single room': 100, 'double room': 150, 'suite': 250}
-        self.additional_services = {'breakfast (per person)': 20, 'wifi (per day)': 10, 'parking (per day)': 15}
+"""
+ Program purpose: To create FairView Hotel Reservation System
+ Programmer: NOORALIA EVIEANNA SOFEA BINTI NORHAIZAM
+ Date: 1 March 2024
+"""
+from datetime import datetime
 
-    def display_room_types(self):
-        print("Available Room Types:")
-        for i, (room_type, price) in enumerate(self.room_prices.items(), 1):
-            print(f"{i}. {room_type} RM{price} per night")
+# Define nightly rates
+room_types = ["single", "double", "suite"]
+rates = [100, 150, 250]
 
-    def select_room_type(self):
-        self.display_room_types()
-        while True:
-            choice = input("Please select a room type either 1 or 2 or 3: ")
-            if choice.isdigit() and 1 <= int(choice) <= len(self.room_prices):
-                return list(self.room_prices.keys())[int(choice) - 1]
+add_services = {"breakfast (per person)": 20, "wifi (per day)": 10, "parking (per day)": 15}
 
-    def get_number_of_rooms(self):
-        while True:
-            num_rooms = input("Enter the number of rooms: ")
-            if num_rooms.isdigit() and int(num_rooms) > 0:
-                return int(num_rooms)
-
-    def get_check_in_out_dates(self):
-        check_in_date = input("Enter your check-in date (YYYY-MM-DD): ")
-        check_out_date = input("Enter your check-out date (YYYY-MM-DD): ")
-        return check_in_date, check_out_date
-
-    def display_additional_services(self):
-        print("\nAdditional Services:")
-        for i, (service, price) in enumerate(self.additional_services.items(), 1):
-            print(f"{i}. {service} - RM{price} ")
-
-    def select_additional_services(self):
-        self.display_additional_services()
-        while True:
-            choice = input("Would you like to add any additional services? (y/n): ")
-            if choice.lower() == 'y':
-                services = input("Please select additional services (separated by commas, example: 1,2): ")
-                services = [int(service.strip()) for service in services.split(',')]
-                return [list(self.additional_services.keys())[service - 1] for service in services]
-            elif choice.lower() == 'n':
-                return []
-
-    def confirm_reservation(self, room_type, num_rooms, check_in_date, check_out_date, additional_services):
-        print("\nThank you for your reservation.")
-        print("Reservation Details:")
-        print(f"Room Type: {room_type} Number of Rooms: {num_rooms}")
-        print(f"Check-in Date: {check_in_date}")
-        print(f"Check-out Date: {check_out_date}")
-
-        if additional_services:
-            print("\nAdditional Services:")
-            for service in additional_services:
-                print(f"- {service}")
-
-        total_cost = self.calculate_total_cost(room_type, num_rooms, check_in_date, check_out_date, additional_services)
-        print(f"\nTotal Cost: RM{total_cost}")
-
-        confirmation = input("Would you like to confirm your reservation? (y/n): ")
-        if confirmation.lower() == 'y':
-            print("Reservation confirmed. Thank you for choosing our hotel. Enjoy your stay!")
-        else:
-            print("Reservation canceled. Thank you!")
-
-    def calculate_total_cost(self, room_type, num_rooms, check_in_date, check_out_date, additional_services):
-        room_price = self.room_prices[room_type]
-        num_days = (int(check_out_date.split('-')[2]) - int(check_in_date.split('-')[2])) + 1
-        total_cost = room_price * num_rooms * num_days
-        for service in additional_services:
-            total_cost += self.additional_services[service] * num_days
+def calculateCost(room_type, no_room, check_in_date, check_out_date, add_services):
+    if room_type in range(1, 4):
+        num_nights = (check_out_date - check_in_date).days
+        base_cost = rates[room_type - 1] * no_room * num_nights
+        additional_cost = sum(add_services.values())
+        total_cost = base_cost + additional_cost
         return total_cost
-
+    else:
+        return None
 
 def main():
-    print("Welcome to Our Hotel Reservation System")
-    hotel_system = HotelReservationSystem()
-    room_type = hotel_system.select_room_type()
-    num_rooms = hotel_system.get_number_of_rooms()
-    check_in_date, check_out_date = hotel_system.get_check_in_out_dates()
-    additional_services = hotel_system.select_additional_services()
-    hotel_system.confirm_reservation(room_type, num_rooms, check_in_date, check_out_date, additional_services)
+    print("Welcome to the Fairview Hotel Reservation System")
+    # Availability of room type
+    print("Available Room Types:")
+    for i, room_type in enumerate(room_types):
+        print(f"{i+1}. {room_type} - RM{rates[i]} per night")
 
+    room_type = int(input("Please select a room type either 1 or 2 or 3: "))
+    no_room = int(input("Enter the number of rooms: "))
+    check_in_date = datetime.strptime(input("Enter check-in date (YYYY-MM-DD): "), '%Y-%m-%d')
+    check_out_date = datetime.strptime(input("Enter check-out date (YYYY-MM-DD): "), '%Y-%m-%d')
+
+    print("Additional Services:")
+    for i, (service, price) in enumerate(add_services.items(), start=1):
+        print(f"{i}. {service} - RM{price} ")
+
+    selected_services = {}
+    for service in add_services:
+        choice = input(f"Add {service} for RM{add_services[service]}  (y/n): ").lower()
+        if choice == "y":
+            selected_services[service] = add_services[service]
+
+    total_cost = calculateCost(room_type, no_room, check_in_date, check_out_date, selected_services)
+
+    if total_cost is not None:
+        print("\nThank you for your reservation.")
+        print("\nReservation Details:")
+        print(f"Room Type: {room_types[room_type - 1]}")
+        print(f"Number of Rooms: {no_room}")
+        print(f"Check-in Date: {check_in_date.strftime('%Y-%m-%d')}")
+        print(f"Check-out Date: {check_out_date.strftime('%Y-%m-%d')}")
+        print("Additional Services:")
+        for service in selected_services:
+            print(f"- {service}")
+        print(f"Total Cost for Reservation: RM{total_cost:.2f}")
+        # Customer need to confirm their reservation
+        confirm_booking = input("\nWould you like to confirm your reservation?(y/n):").lower()
+        if confirm_booking == "y":
+            print("\nYour reservation is confirmed. Thank you for choosing FairView Hotel and enjoy your stay!")
+        else:
+            print("Reservation not confirmed. Thank you for considering us.")
+    else:
+        print("Invalid room type. Please select a valid room type.")
 
 if __name__ == "__main__":
     main()
